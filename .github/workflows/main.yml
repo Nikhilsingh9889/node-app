@@ -1,16 +1,14 @@
-name: Build and Deploy Docker Image
-
 on:
   push:
     branches:
-      - main     # Trigger this action on changes to the main branch
+      - main  # Trigger this action on changes to the main branch
     paths:
-      - 'server.js'  # You can modify this to other files or directories as needed
+      - 'server.js'  # Trigger only when server.js changes (remove if you want it to trigger for any push to main)
 
 jobs:
   deploy:
-    runs-on: [self-hosted, dev-runner]   # Specify the self-hosted runner (dev-runner) by name
-    
+    runs-on: [self-hosted, dev-runner]  # Ensure your runner matches these labels
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v2  # Pulls the latest code from the repository
@@ -20,18 +18,19 @@ jobs:
 
     - name: Build Docker image and Deploy using Docker Compose
       run: |
-        # Build the Docker image using docker-compose
+        echo "Building Docker image..."
         docker-compose build
-        
-        # Bring up the container using docker-compose
+        echo "Bringing up containers..."
         docker-compose up -d
 
     - name: Run tests (optional)
       run: |
-        # Optional: Run any tests here
         echo "Running tests..."
+        # Uncomment and add your test script here if needed
+        # npm install
+        # npm test
 
     - name: Clean up Docker containers
       run: |
-        # Optional: Tear down the containers after deployment
+        echo "Cleaning up Docker containers..."
         docker-compose down
