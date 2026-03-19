@@ -2,8 +2,7 @@ on:
   push:
     branches:
       - main  # Trigger this action on changes to the main branch
-    paths:
-      - 'server.js'  # Trigger only when server.js changes (remove if you want it to trigger for any push to main)
+    
 
 jobs:
   deploy:
