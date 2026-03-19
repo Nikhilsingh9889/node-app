@@ -7,7 +7,7 @@ on:
 
 jobs:
   deploy:
-    runs-on: [self-hosted, Linux]  # Ensure your runner matches these labels
+    runs-on: self-hosted # Ensure your runner matches these labels
 
     steps:
     - name: Checkout code
