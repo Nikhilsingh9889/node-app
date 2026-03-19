@@ -2,11 +2,14 @@ on:
   push:
     branches:
       - main  # Trigger this action on changes to the main branch
-    
 
 jobs:
   deploy:
     runs-on: self-hosted # Ensure your runner matches these labels
+
+    env:
+      IMAGE_NAME: "myapp"  # Docker image name
+      TAG: ${{ github.sha }}  # Using commit SHA as the image tag (you can change this to `latest` if needed)
 
     steps:
     - name: Checkout code
@@ -15,9 +18,32 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2  # Set up Docker Buildx (for multi-platform builds)
 
-    - name: Build Docker image and Deploy using Docker Compose
+    - name: Build Docker image
       run: |
         echo "Building Docker image..."
-        docker-compose build
+        docker-compose build --build-arg IMAGE_TAG=${{ env.TAG }}  # Build with commit SHA as tag
+
+    - name: Remove old containers
+      run: |
+        echo "Removing old containers..."
+        # Get the name of the container, replace `myapp` with the actual container name
+        CONTAINER_ID=$(docker ps -a -q --filter "ancestor=${{ env.IMAGE_NAME }}:${{ env.TAG }}")
+        if [ -n "$CONTAINER_ID" ]; then
+          docker stop $CONTAINER_ID
+          docker rm $CONTAINER_ID
+        fi
+
+    - name: Remove unused images
+      run: |
+        echo "Removing unused Docker images..."
+        docker image prune -af  # Remove dangling images to free up space
+
+    - name: Deploy the new container
+      run: |
         echo "Bringing up containers..."
-        docker-compose up -d
+        docker-compose up -d --build # Rebuild and start containers with the new image
+
+    - name: Cleanup old images
+      run: |
+        echo "Removing old Docker images..."
+        docker rmi $(docker images -f "dangling=true" -q)  # Remove dangling images that are not tagged
