@@ -21,15 +21,3 @@ jobs:
         docker-compose build
         echo "Bringing up containers..."
         docker-compose up -d
-
-    - name: Run tests (optional)
-      run: |
-        echo "Running tests..."
-        # Uncomment and add your test script here if needed
-        # npm install
-        # npm test
-
-    - name: Clean up Docker containers
-      run: |
-        echo "Cleaning up Docker containers..."
-        docker-compose down
